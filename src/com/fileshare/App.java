@@ -1,3 +1,5 @@
+package com.fileshare;
+
 import com.fileshare.dto.Message;
 import com.fileshare.interfaces.MessageBroker;
 import com.fileshare.interfaces.Node;
