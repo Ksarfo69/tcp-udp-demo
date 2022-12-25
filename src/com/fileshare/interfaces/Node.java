@@ -1,19 +1,25 @@
 package com.fileshare.interfaces;
 
+import com.fileshare.dto.Message;
+
 import java.net.DatagramSocket;
-import java.net.InetAddress;
+import java.net.Socket;
 
-public interface Node {
-    public void sendMessage(byte[] payload, Node node);
+public abstract class Node {
+    public void sendMessage(Message message) {};
 
-    public void receiveMessage();
+    public void receiveMessage() {};
 
-    public InetAddress getAddress();
+    public void connect() {};
 
-    public DatagramSocket getSocket();
+    public void closeSocket() {} ;
 
-    public int getPort();
+    public Socket getSocket() {
+        return null;
+    };
 
-    public void closeSocket() ;
+    public DatagramSocket getDatagramSocket() {
+        return null;
+    };
 
 }

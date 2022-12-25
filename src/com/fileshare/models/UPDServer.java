@@ -1,18 +1,20 @@
 package com.fileshare.models;
 
+import com.fileshare.dto.Message;
+import com.fileshare.interfaces.MessageBroker;
 import com.fileshare.interfaces.Node;
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.SocketException;
 import java.nio.charset.StandardCharsets;
 
-public class UPDServer implements Node{
+public class UPDServer extends Node{
     private DatagramSocket socket;
     private InetAddress address;
     private DatagramPacket packet;
     private int port;
+    private MessageBroker messageBroker;
 
     public UPDServer(String address, int port)
     {
@@ -20,6 +22,8 @@ public class UPDServer implements Node{
             this.socket = new DatagramSocket(port);
             this.port = port;
             this.address = InetAddress.getByName(address);
+            this.messageBroker = new Broker();
+            this.messageBroker.setSocket(this.socket);
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
@@ -45,21 +49,9 @@ public class UPDServer implements Node{
         }
     }
 
-    public void sendMessage(byte[] payload, Node node)
+    public void sendMessage(Message message)
     {
-        InetAddress destinationAddress = node.getAddress();
-        int destinationPort = node.getPort();
-        try{
-            //create packet
-            this.packet = new DatagramPacket(payload, payload.length, destinationAddress, destinationPort);
-
-            //send packet
-            socket.send(this.packet);
-
-            System.out.println("server sent: "+ new String(this.packet.getData(), StandardCharsets.UTF_8));
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
+        this.messageBroker.transmit(message);
     }
 
     public void closeSocket()
@@ -72,17 +64,7 @@ public class UPDServer implements Node{
         }
     }
 
-    public InetAddress getAddress()
-    {
-        return this.address;
-    }
-
-    public DatagramSocket getSocket() {
-        return this.socket;
-    }
-
-    public int getPort()
-    {
-        return this.port;
+    public DatagramSocket getDatagramSocket() {
+        return socket;
     }
 }

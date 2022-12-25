@@ -1,16 +1,15 @@
 package com.fileshare;
 
 import com.fileshare.dto.Message;
-import com.fileshare.interfaces.MessageBroker;
 import com.fileshare.interfaces.Node;
-import com.fileshare.models.Broker;
-import com.fileshare.models.UDPClient;
+import com.fileshare.interfaces.Protocol;
 import com.fileshare.models.UPDServer;
 
+import java.net.InetAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 
-public class App {
+public class UDPServerClient {
     public static void main(String[] args) {
         UDPTransfer();
     }
@@ -18,19 +17,12 @@ public class App {
 
     public static void UDPTransfer()
     {
-        Node client = new UDPClient("localhost", 6100);
         Node server = new UPDServer("localhost", 6200);
-        MessageBroker messageBroker = new Broker();
-
-        //initial request for resource
-        Message clientRequestMessage = new Message(client, server, "I want information".getBytes(StandardCharsets.UTF_8));
-        messageBroker.transmit(clientRequestMessage);
-
 
         Thread clientThread = new Thread(new Runnable() {
             @Override
             public void run() {
-                clientListener(client);
+                listener(server);
             }
         });
 
@@ -39,7 +31,7 @@ public class App {
         Thread serverThread = new Thread(new Runnable() {
             @Override
             public void run() {
-                serverSender(client, server, messageBroker);
+                sender(server);
             }
         });
 
@@ -47,16 +39,16 @@ public class App {
         serverThread.start();
     }
 
-    public static void clientListener(Node client)
+    public static void listener(Node server)
     {
-        while(!client.getSocket().isClosed())
+        while(!server.getDatagramSocket().isClosed())
         {
-            client.receiveMessage();
+            server.receiveMessage();
         }
     }
 
 
-    public static void serverSender(Node client, Node server, MessageBroker messageBroker)
+    public static void sender(Node server)
     {
         Scanner scanner = new Scanner(System.in);
         String in = "";
@@ -67,16 +59,15 @@ public class App {
             //get the message.
             in = scanner.nextLine();
 
-            //close socket if message was exit
-            if(in.equalsIgnoreCase("exit")) {client.closeSocket(); server.closeSocket(); break;}
-
             try {
-                //populate message payload and write to packet.
+                //process message
+                InetAddress destination = InetAddress.getByName("localhost");
+                int port = 6100;
                 payload = in.getBytes(StandardCharsets.UTF_8);
 
-                //process message
-                Message message = new Message(server, client, payload);
-                messageBroker.transmit(message);
+                Message message = new Message(destination, port, Protocol.UDP, payload);
+
+                server.sendMessage(message);
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }
