@@ -24,7 +24,7 @@
                     <archive>
                         <manifest>
 <!--                            <addClasspath>true</addClasspath>-->
-                            <mainClass>com.fileshare.FileshareApp</mainClass>
+                            <mainClass>com.com.fileshare.FileshareApp</mainClass>
                         </manifest>
                     </archive>
                     <goal>repackage</goal>

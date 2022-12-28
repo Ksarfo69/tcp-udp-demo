@@ -1,8 +1,8 @@
 package com.fileshare.models;
 
+import com.fileshare.enums.Protocol;
 import com.fileshare.interfaces.MessageBroker;
 import com.fileshare.interfaces.Node;
-import com.fileshare.enums.Protocol;
 import com.fileshare.dto.Message;
 
 import java.io.BufferedReader;
