@@ -20,7 +20,6 @@ public class TCPServerDriver {
         String destinationIp = scanner.nextLine();
 
         Node server = new TCPServer("localhost", port);
-        System.out.println("TCP_SERVER running on port " + port);
 
         //create listener
         Listener listener = new Listener(server);
