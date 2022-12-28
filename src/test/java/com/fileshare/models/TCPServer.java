@@ -1,16 +1,19 @@
 package com.fileshare.models;
 
-import com.fileshare.dto.Message;
 import com.fileshare.interfaces.MessageBroker;
 import com.fileshare.interfaces.Node;
+import com.fileshare.interfaces.Protocol;
+import com.fileshare.dto.Message;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 
-public class TCPServer extends Node{
+public class TCPServer extends Node {
     private Socket socket;
     private ServerSocket ss;
     private InetAddress address;
@@ -43,8 +46,26 @@ public class TCPServer extends Node{
     }
 
     @Override
-    public void sendMessage(Message message) {
-        this.messageBroker.transmit(message);
+    public void sendMessage(String out, String destinationIp, int port) {
+        //close socket if message was exit
+        if(out.equalsIgnoreCase("exit")){
+            System.out.println("Exiting TCP_SERVER...");
+            cleanup();
+            return;
+        }
+
+        try {
+            //process message
+            byte[] payload;
+            InetAddress destination = InetAddress.getByName(destinationIp);
+            payload = out.getBytes(StandardCharsets.UTF_8);
+
+            Message message = new Message(destination, port, Protocol.TCP, payload);
+
+            this.messageBroker.transmit(message);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     @Override
@@ -56,7 +77,7 @@ public class TCPServer extends Node{
             String in = br.readLine();
 
             //close socket if message was exit
-            if(in.equalsIgnoreCase("exit")) closeSocket();
+            if(in.equalsIgnoreCase("exit")) cleanup();
 
             System.out.println("server received: "+ in);
         } catch (Exception e) {
@@ -66,9 +87,19 @@ public class TCPServer extends Node{
 
 
     @Override
-    public void closeSocket() {
+    public void cleanup() {
         try{
-            this.socket.close();
+            System.out.println("Cleaning up resources...");
+
+            //close socket
+            if(Objects.nonNull(this.socket))
+            {
+                this.socket.close();
+                System.out.println("Socket closed.");
+            }
+            System.out.println("TCP_SERVER exited.");
+
+            //kill thread.
             Thread.currentThread().interrupt();
         }catch(Exception e)
         {

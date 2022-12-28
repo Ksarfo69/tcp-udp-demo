@@ -1,8 +1,8 @@
 package com.fileshare.models;
 
-import com.fileshare.dto.Message;
 import com.fileshare.interfaces.MessageBroker;
 import com.fileshare.interfaces.Protocol;
+import com.fileshare.dto.Message;
 
 import java.io.PrintWriter;
 import java.net.DatagramPacket;
