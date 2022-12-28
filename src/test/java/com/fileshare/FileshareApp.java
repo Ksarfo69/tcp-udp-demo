@@ -1,6 +1,6 @@
 package com.fileshare;
 
-import com.fileshare.interfaces.Command;
+import com.fileshare.enums.Command;
 
 import java.util.Scanner;
 

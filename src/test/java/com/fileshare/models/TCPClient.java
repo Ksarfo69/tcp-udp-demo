@@ -2,7 +2,7 @@ package com.fileshare.models;
 
 import com.fileshare.interfaces.MessageBroker;
 import com.fileshare.interfaces.Node;
-import com.fileshare.interfaces.Protocol;
+import com.fileshare.enums.Protocol;
 import com.fileshare.dto.Message;
 
 import java.io.BufferedReader;
@@ -14,11 +14,12 @@ import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
-public class TCPClient extends Node {
+public class TCPClient implements Node {
     private Socket socket;
     private InetAddress address;
     private int port;
     private MessageBroker messageBroker;
+    private Boolean isActive;
 
 
     public TCPClient(String address, int port)
@@ -26,7 +27,6 @@ public class TCPClient extends Node {
         try {
             this.address = InetAddress.getByName(address);
             this.port = port;
-            System.out.println("TCP_CLIENT running on port " + port);
             this.messageBroker = new Broker();
         } catch (UnknownHostException e) {
             throw new RuntimeException(e);
@@ -46,6 +46,8 @@ public class TCPClient extends Node {
                 //create socket
                 this.socket = new Socket(this.address, this.port);
                 this.messageBroker.setSocket(this.socket);
+                this.isActive = true;
+                System.out.println("TCP_CLIENT running on port " + port);
             } catch (IOException e) {
                 try {
                     System.out.println("Connection failed, retrying in 3 seconds. " + (maxTries-count - 1) + " attempt(s) remaining.");
@@ -107,6 +109,9 @@ public class TCPClient extends Node {
                 System.out.println("Socket closed.");
             }
 
+            //set active flag to false;
+            this.isActive = false;
+
             //kill thread.
             Thread.currentThread().interrupt();
             System.out.println("TCP_CLIENT exited.");
@@ -116,7 +121,8 @@ public class TCPClient extends Node {
         }
     }
 
-    public Socket getSocket() {
-        return socket;
+    public Boolean isActive()
+    {
+        return this.isActive;
     }
 }

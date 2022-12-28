@@ -22,16 +22,17 @@ public class TCPServerDriver {
         Node server = new TCPServer("localhost", port);
         System.out.println("TCP_SERVER running on port " + port);
 
-        //establish handshake
-        server.connect();
-
         //create listener
         Listener listener = new Listener(server);
 
         //create talker
         Talker talker = new Talker(server, destinationIp, port);
 
-        listener.start();
-        talker.start();
+        //TCP protocol will interrupt main thread if handshake fails
+        if(!Thread.currentThread().isInterrupted())
+        {
+            listener.start();
+            talker.start();
+        }
     }
 }

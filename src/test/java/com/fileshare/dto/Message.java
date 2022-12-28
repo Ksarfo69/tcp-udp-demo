@@ -1,5 +1,5 @@
 package com.fileshare.dto;
-import com.fileshare.interfaces.Protocol;
+import com.fileshare.enums.Protocol;
 
 import java.net.InetAddress;
 

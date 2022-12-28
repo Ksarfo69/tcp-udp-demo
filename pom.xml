@@ -27,6 +27,7 @@
                             <mainClass>com.fileshare.FileshareApp</mainClass>
                         </manifest>
                     </archive>
+                    <goal>repackage</goal>
                 </configuration>
             </plugin>
         </plugins>

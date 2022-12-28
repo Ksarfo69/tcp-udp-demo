@@ -22,7 +22,6 @@ public class TCPClientDriver {
 
         //create client
         Node client = new TCPClient("localhost", port);
-        System.out.println("TCP_CLIENT running on port " + port);
 
         //create listener
         Listener listener = new Listener(client);
@@ -30,8 +29,12 @@ public class TCPClientDriver {
         //create talker
         Talker talker = new Talker(client, destinationIp, port);
 
-        listener.start();
-        talker.start();
+        //TCP protocol will interrupt main thread if handshake fails
+        if(!Thread.currentThread().isInterrupted())
+        {
+            listener.start();
+            talker.start();
+        }
     }
 
 }

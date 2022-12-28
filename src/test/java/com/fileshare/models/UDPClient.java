@@ -1,9 +1,9 @@
 package com.fileshare.models;
 
+import com.fileshare.dto.Message;
+import com.fileshare.enums.Protocol;
 import com.fileshare.interfaces.MessageBroker;
 import com.fileshare.interfaces.Node;
-import com.fileshare.interfaces.Protocol;
-import com.fileshare.dto.Message;
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -11,12 +11,12 @@ import java.net.InetAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
-public class UDPClient extends Node {
+public class UDPClient implements Node {
     private InetAddress address;
     private DatagramSocket socket;
-    private DatagramPacket packet;
     private int port;
     private MessageBroker messageBroker;
+    private Boolean isActive;
 
     public UDPClient (String address, int port)
     {
@@ -26,6 +26,7 @@ public class UDPClient extends Node {
             this.address = InetAddress.getByName(address);
             this.messageBroker = new Broker();
             this.messageBroker.setSocket(this.socket);
+            this.isActive = true;
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
@@ -44,9 +45,6 @@ public class UDPClient extends Node {
 
             //read the data and trim out whitespaces
             in = new String(payload, StandardCharsets.UTF_8).trim();
-
-            //close socket if message was exit
-            if(in.equalsIgnoreCase("exit")) cleanup();
 
             System.out.println("client received: " + in);
         } catch (Exception e) {
@@ -67,7 +65,7 @@ public class UDPClient extends Node {
             InetAddress destination = InetAddress.getByName(destinationIp);
             payload = out.getBytes(StandardCharsets.UTF_8);
 
-            Message message = new Message(destination, port, Protocol.TCP, payload);
+            Message message = new Message(destination, destinationPort, Protocol.UDP, payload);
 
             this.messageBroker.transmit(message);
         } catch (Exception e) {
@@ -86,6 +84,10 @@ public class UDPClient extends Node {
                 this.socket.close();
                 System.out.println("Socket closed.");
             }
+
+            //set active flag to false;
+            this.isActive = false;
+
             System.out.println("UDP_CLIENT exited.");
 
             //kill thread.
@@ -96,7 +98,8 @@ public class UDPClient extends Node {
         }
     }
 
-    public DatagramSocket getDatagramSocket() {
-        return socket;
+    public Boolean isActive()
+    {
+        return this.isActive;
     }
 }

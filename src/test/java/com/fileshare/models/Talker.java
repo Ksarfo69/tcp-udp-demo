@@ -26,7 +26,12 @@ public class Talker extends Thread{
     private void talk()
     {
         String out = "";
-        //System.out.println("Please type message below: ");
+
+        if(node.isActive())
+        {
+            System.out.println("Please type message below: ");
+        }
+
         while(!Thread.currentThread().isInterrupted() && scanner.hasNext())
         {
             //get the message.

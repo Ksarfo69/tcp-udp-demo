@@ -2,7 +2,7 @@ package com.fileshare.models;
 
 import com.fileshare.interfaces.MessageBroker;
 import com.fileshare.interfaces.Node;
-import com.fileshare.interfaces.Protocol;
+import com.fileshare.enums.Protocol;
 import com.fileshare.dto.Message;
 
 import java.io.BufferedReader;
@@ -13,12 +13,13 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
-public class TCPServer extends Node {
+public class TCPServer implements Node {
     private Socket socket;
     private ServerSocket ss;
     private InetAddress address;
     private int port;
     private MessageBroker messageBroker;
+    private Boolean isActive;
 
 
     public TCPServer(String address, int port)
@@ -28,6 +29,7 @@ public class TCPServer extends Node {
             this.port = port;
             this.ss = new ServerSocket(port);
             this.messageBroker = new Broker();
+            connect();
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
@@ -39,7 +41,9 @@ public class TCPServer extends Node {
         try {
             this.socket = this.ss.accept();
             this.messageBroker.setSocket(this.socket);
+            this.isActive = true;
             System.out.println("Connection established between client and server.");
+            System.out.println("TCP_SERVER running on port " + port);
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
@@ -49,7 +53,6 @@ public class TCPServer extends Node {
     public void sendMessage(String out, String destinationIp, int port) {
         //close socket if message was exit
         if(out.equalsIgnoreCase("exit")){
-            System.out.println("Exiting TCP_SERVER...");
             cleanup();
             return;
         }
@@ -64,6 +67,7 @@ public class TCPServer extends Node {
 
             this.messageBroker.transmit(message);
         } catch (Exception e) {
+            cleanup();
             System.out.println(e.getMessage());
         }
     }
@@ -75,9 +79,6 @@ public class TCPServer extends Node {
             BufferedReader br = new BufferedReader(input);
 
             String in = br.readLine();
-
-            //close socket if message was exit
-            if(in.equalsIgnoreCase("exit")) cleanup();
 
             System.out.println("server received: "+ in);
         } catch (Exception e) {
@@ -97,6 +98,10 @@ public class TCPServer extends Node {
                 this.socket.close();
                 System.out.println("Socket closed.");
             }
+
+            //set active flag to false;
+            this.isActive = false;
+
             System.out.println("TCP_SERVER exited.");
 
             //kill thread.
@@ -107,7 +112,8 @@ public class TCPServer extends Node {
         }
     }
 
-    public Socket getSocket() {
-        return socket;
+    public Boolean isActive()
+    {
+        return this.isActive;
     }
 }

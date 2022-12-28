@@ -30,7 +30,7 @@ public class UDPServerClient {
         //create talker
         Talker talker = new Talker(server, destinationIp, destinationPort);
 
-        listener.run();
-        talker.run();
+        listener.start();
+        talker.start();
     }
 }

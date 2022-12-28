@@ -2,7 +2,7 @@ package com.fileshare.models;
 
 import com.fileshare.interfaces.MessageBroker;
 import com.fileshare.interfaces.Node;
-import com.fileshare.interfaces.Protocol;
+import com.fileshare.enums.Protocol;
 import com.fileshare.dto.Message;
 
 import java.net.DatagramPacket;
@@ -11,12 +11,12 @@ import java.net.InetAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
-public class UPDServer extends Node {
+public class UPDServer implements Node {
     private DatagramSocket socket;
     private InetAddress address;
-    private DatagramPacket packet;
     private int port;
     private MessageBroker messageBroker;
+    private Boolean isActive;
 
     public UPDServer(String address, int port)
     {
@@ -26,6 +26,7 @@ public class UPDServer extends Node {
             this.address = InetAddress.getByName(address);
             this.messageBroker = new Broker();
             this.messageBroker.setSocket(this.socket);
+            this.isActive = true;
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
@@ -64,7 +65,7 @@ public class UPDServer extends Node {
             InetAddress destination = InetAddress.getByName(destinationIp);
             payload = out.getBytes(StandardCharsets.UTF_8);
 
-            Message message = new Message(destination, port, Protocol.TCP, payload);
+            Message message = new Message(destination, destinationPort, Protocol.UDP, payload);
 
             this.messageBroker.transmit(message);
         } catch (Exception e) {
@@ -83,6 +84,10 @@ public class UPDServer extends Node {
                 this.socket.close();
                 System.out.println("Socket closed.");
             }
+
+            //set active flag to false;
+            this.isActive = false;
+
             System.out.println("UDP_SERVER exited.");
 
             //kill thread.
@@ -93,7 +98,8 @@ public class UPDServer extends Node {
         }
     }
 
-    public DatagramSocket getDatagramSocket() {
-        return socket;
+    public Boolean isActive()
+    {
+        return this.isActive;
     }
 }

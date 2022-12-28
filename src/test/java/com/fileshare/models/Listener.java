@@ -20,13 +20,18 @@ public class Listener extends Thread{
     {
         while(!Thread.currentThread().isInterrupted())
         {
-            if(Objects.isNull(node.getSocket()) || node.getSocket().isClosed())
+            //if client flag not set yet
+            if(Objects.isNull(node.isActive()))
             {
-                Thread.currentThread().interrupt();
+                continue;
+            }
+            else if(node.isActive())
+            {
+                node.receiveMessage();
             }
             else
             {
-                node.receiveMessage();
+                Thread.currentThread().interrupt();
             }
         }
     }

@@ -1,4 +1,4 @@
-package com.fileshare.interfaces;
+package com.fileshare.enums;
 
 public enum Protocol {
     UDP,
